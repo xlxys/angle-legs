@@ -46,13 +46,12 @@ for _ in tqdm(range(total_frames), desc="Processing video"):
     img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = pose.process(img_rgb)
 
-    if results.pose_landmarks:
-        landmarks = results.pose_landmarks.landmark
-        h, w, _ = frame.shape
+    if results.pose_world_landmarks:
+        landmarks = results.pose_world_landmarks.landmark
 
         def get_coords(index):
             lm = landmarks[index]
-            return int(lm.x * w), int(lm.y * h)
+            return lm.x, lm.y, lm.z
 
         try:
             # Right leg
@@ -69,24 +68,29 @@ for _ in tqdm(range(total_frames), desc="Processing video"):
 
             data.append({
                 'frame': frame_count,
-                'r_hip_x': r_hip[0], 'r_hip_y': r_hip[1],
-                'r_knee_x': r_knee[0], 'r_knee_y': r_knee[1],
-                'r_ankle_x': r_ankle[0], 'r_ankle_y': r_ankle[1],
+                'r_hip_x': r_hip[0], 'r_hip_y': r_hip[1], 'r_hip_z': r_hip[2],
+                'r_knee_x': r_knee[0], 'r_knee_y': r_knee[1], 'r_knee_z': r_knee[2],
+                'r_ankle_x': r_ankle[0], 'r_ankle_y': r_ankle[1], 'r_ankle_z': r_ankle[2],
                 'r_angle': r_angle,
-                'l_hip_x': l_hip[0], 'l_hip_y': l_hip[1],
-                'l_knee_x': l_knee[0], 'l_knee_y': l_knee[1],
-                'l_ankle_x': l_ankle[0], 'l_ankle_y': l_ankle[1],
+                'l_hip_x': l_hip[0], 'l_hip_y': l_hip[1], 'l_hip_z': l_hip[2],
+                'l_knee_x': l_knee[0], 'l_knee_y': l_knee[1], 'l_knee_z': l_knee[2],
+                'l_ankle_x': l_ankle[0], 'l_ankle_y': l_ankle[1], 'l_ankle_z': l_ankle[2],
                 'l_angle': l_angle
             })
 
-            if args.display:
+            if args.display and results.pose_landmarks:
                 mp_draw.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-                cv2.putText(frame, f'R: {int(r_angle)}', (r_knee[0]-40, r_knee[1]-20),
+                h, w, _ = frame.shape
+                px = int(results.pose_landmarks.landmark[26].x * w)
+                py = int(results.pose_landmarks.landmark[26].y * h)
+                cv2.putText(frame, f'R: {int(r_angle)}', (px - 40, py - 20),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                cv2.putText(frame, f'L: {int(l_angle)}', (l_knee[0]-40, l_knee[1]-40),
+                px = int(results.pose_landmarks.landmark[25].x * w)
+                py = int(results.pose_landmarks.landmark[25].y * h)
+                cv2.putText(frame, f'L: {int(l_angle)}', (px - 40, py - 40),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-                resized = cv2.resize(frame, (480*2, 360*2))
+                resized = cv2.resize(frame, (480, 360))
                 cv2.imshow('Pose Detection', resized)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
