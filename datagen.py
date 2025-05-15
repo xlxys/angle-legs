@@ -81,14 +81,21 @@ for _ in tqdm(range(total_frames), desc="Processing video"):
             if args.display and results.pose_landmarks:
                 mp_draw.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
                 h, w, _ = frame.shape
-                px = int(results.pose_landmarks.landmark[26].x * w)
-                py = int(results.pose_landmarks.landmark[26].y * h)
-                cv2.putText(frame, f'R: {int(r_angle)}', (px - 40, py - 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                px = int(results.pose_landmarks.landmark[25].x * w)
-                py = int(results.pose_landmarks.landmark[25].y * h)
-                cv2.putText(frame, f'L: {int(l_angle)}', (px - 40, py - 40),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+                # Use the midpoint between left and right hip as reference point
+                ref_x = int((results.pose_landmarks.landmark[23].x + results.pose_landmarks.landmark[24].x) / 2 * w)
+                ref_y = int((results.pose_landmarks.landmark[23].y + results.pose_landmarks.landmark[24].y) / 2 * h)
+                cv2.drawMarker(frame, (ref_x, ref_y), (0, 255, 255), cv2.MARKER_CROSS, 15, 2)
+                cv2.putText(frame, 'Hip Center (0,0,0)', (ref_x + 5, ref_y - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
+
+                # Display world coordinates for key landmarks
+                for name, idx in [('R_Knee', 26), ('R_Hip', 24), ('R_Ankle', 28),
+                                  ('L_Knee', 25), ('L_Hip', 23), ('L_Ankle', 27)]:
+                    lm = landmarks[idx]
+                    px, py = int(results.pose_landmarks.landmark[idx].x * w), int(results.pose_landmarks.landmark[idx].y * h)
+                    coords = f"{name}: ({lm.x:.2f}, {lm.y:.2f}, {lm.z:.2f})"
+                    cv2.putText(frame, coords, (px + 5, py), cv2.FONT_HERSHEY_PLAIN, 0.6, (255, 255, 255), 1)
 
                 resized = cv2.resize(frame, (480, 360))
                 cv2.imshow('Pose Detection', resized)
