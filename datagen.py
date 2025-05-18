@@ -33,6 +33,10 @@ def calculate_angle(a, b, c):
     angle = np.arccos(np.clip(cosine_angle, -1.0, 1.0))
     return np.degrees(angle)
 
+# Function to calculate distance between two 3D points
+def distance_3d(p1, p2):
+    return np.linalg.norm(np.array(p1) - np.array(p2))
+
 # Data collection list
 data = []
 frame_count = 0
@@ -51,7 +55,7 @@ for _ in tqdm(range(total_frames), desc="Processing video"):
 
         def get_coords(index):
             lm = landmarks[index]
-            return lm.x, lm.y, lm.z
+            return lm.y, lm.x, lm.z
 
         try:
             # Right leg
@@ -66,16 +70,28 @@ for _ in tqdm(range(total_frames), desc="Processing video"):
             l_ankle = get_coords(27)
             l_angle = calculate_angle(l_hip, l_knee, l_ankle)
 
+            # Distances
+            r_thigh_length = distance_3d(r_hip, r_knee)
+            r_calf_length = distance_3d(r_knee, r_ankle)
+            l_thigh_length = distance_3d(l_hip, l_knee)
+            l_calf_length = distance_3d(l_knee, l_ankle)
+            hip_width = distance_3d(r_hip, l_hip)
+
             data.append({
                 'frame': frame_count,
-                'r_hip_y': r_hip[0], 'r_hip_x': r_hip[1], 'r_hip_z': r_hip[2],
-                'r_knee_y': r_knee[0], 'r_knee_x': r_knee[1], 'r_knee_z': r_knee[2],
-                'r_ankle_y': r_ankle[0], 'r_ankle_x': r_ankle[1], 'r_ankle_z': r_ankle[2],
+                'r_hip_x': r_hip[0], 'r_hip_y': r_hip[1], 'r_hip_z': r_hip[2],
+                'r_knee_x': r_knee[0], 'r_knee_y': r_knee[1], 'r_knee_z': r_knee[2],
+                'r_ankle_x': r_ankle[0], 'r_ankle_y': r_ankle[1], 'r_ankle_z': r_ankle[2],
                 'r_angle': r_angle,
-                'l_hip_y': l_hip[0], 'l_hip_x': l_hip[1], 'l_hip_z': l_hip[2],
-                'l_knee_y': l_knee[0], 'l_knee_x': l_knee[1], 'l_knee_z': l_knee[2],
-                'l_ankle_y': l_ankle[0], 'l_ankle_x': l_ankle[1], 'l_ankle_z': l_ankle[2],
-                'l_angle': l_angle
+                'l_hip_x': l_hip[0], 'l_hip_y': l_hip[1], 'l_hip_z': l_hip[2],
+                'l_knee_x': l_knee[0], 'l_knee_y': l_knee[1], 'l_knee_z': l_knee[2],
+                'l_ankle_x': l_ankle[0], 'l_ankle_y': l_ankle[1], 'l_ankle_z': l_ankle[2],
+                'l_angle': l_angle,
+                'r_thigh_length': r_thigh_length,
+                'r_calf_length': r_calf_length,
+                'l_thigh_length': l_thigh_length,
+                'l_calf_length': l_calf_length,
+                'hip_width': hip_width
             })
 
             if args.display and results.pose_landmarks:
