@@ -68,13 +68,13 @@ for _ in tqdm(range(total_frames), desc="Processing video"):
 
             data.append({
                 'frame': frame_count,
-                'r_hip_x': r_hip[0], 'r_hip_y': r_hip[1], 'r_hip_z': r_hip[2],
-                'r_knee_x': r_knee[0], 'r_knee_y': r_knee[1], 'r_knee_z': r_knee[2],
-                'r_ankle_x': r_ankle[0], 'r_ankle_y': r_ankle[1], 'r_ankle_z': r_ankle[2],
+                'r_hip_y': r_hip[0], 'r_hip_x': r_hip[1], 'r_hip_z': r_hip[2],
+                'r_knee_y': r_knee[0], 'r_knee_x': r_knee[1], 'r_knee_z': r_knee[2],
+                'r_ankle_y': r_ankle[0], 'r_ankle_x': r_ankle[1], 'r_ankle_z': r_ankle[2],
                 'r_angle': r_angle,
-                'l_hip_x': l_hip[0], 'l_hip_y': l_hip[1], 'l_hip_z': l_hip[2],
-                'l_knee_x': l_knee[0], 'l_knee_y': l_knee[1], 'l_knee_z': l_knee[2],
-                'l_ankle_x': l_ankle[0], 'l_ankle_y': l_ankle[1], 'l_ankle_z': l_ankle[2],
+                'l_hip_y': l_hip[0], 'l_hip_x': l_hip[1], 'l_hip_z': l_hip[2],
+                'l_knee_y': l_knee[0], 'l_knee_x': l_knee[1], 'l_knee_z': l_knee[2],
+                'l_ankle_y': l_ankle[0], 'l_ankle_x': l_ankle[1], 'l_ankle_z': l_ankle[2],
                 'l_angle': l_angle
             })
 
